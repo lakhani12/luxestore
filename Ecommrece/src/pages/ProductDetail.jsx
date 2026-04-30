@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ShoppingBag, Heart, Star, Truck, ShieldCheck, RotateCcw, ChevronRight, Minus, Plus } from 'lucide-react';
-import { productService } from '../services/api';
+import { productService, wishlistService } from '../services/api';
 import { useCart } from '../context/CartContext';
 
 const ProductDetail = () => {
@@ -44,6 +44,16 @@ const ProductDetail = () => {
       alert('Product added to your boutique bag');
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleAddToWishlist = async () => {
+    try {
+      await wishlistService.addToWishlist(id);
+      alert("Added to your curated wishlist.");
+    } catch (err) {
+      console.error(err);
+      alert("Unable to add to wishlist. Please ensure you are logged in.");
     }
   };
 
@@ -98,7 +108,7 @@ const ProductDetail = () => {
             <span className="text-[10px] tracking-[0.2em] font-bold text-slate-400 uppercase">Authenticated Luxury</span>
           </div>
 
-          <div className="text-4xl font-bold text-luxury-navy mb-12 tracking-tight">${product.price?.toLocaleString()}</div>
+          <div className="text-4xl font-bold text-luxury-navy mb-12 tracking-tight">₹{product.price?.toLocaleString('en-IN')}</div>
           
           <div className="prose prose-slate mb-16">
             <p className="text-slate-600 leading-loose font-light text-lg italic">
@@ -129,7 +139,10 @@ const ProductDetail = () => {
               >
                 <ShoppingBag className="w-5 h-5 mr-3" /> Add To Boutique Bag
               </button>
-              <button className="p-6 border border-luxury-gold/10 bg-white hover:text-red-500 transition-all shadow-sm">
+              <button 
+                onClick={handleAddToWishlist}
+                className="p-6 border border-luxury-gold/10 bg-white hover:text-red-500 transition-all shadow-sm"
+              >
                 <Heart className="w-5 h-5" />
               </button>
             </div>

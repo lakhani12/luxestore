@@ -12,6 +12,10 @@ import Register from './pages/Register';
 import Wishlist from './pages/Wishlist';
 import AdminPanel from './pages/AdminPanel';
 import Profile from './pages/Profile';
+import Contact from './pages/Contact';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import Categories from './pages/Categories';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -45,9 +49,13 @@ function App() {
               <Route path="/order-confirmation" element={<OrderConfirmation />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/categories" element={<Categories />} />
               <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
             </Routes>
           </Layout>
         </CartProvider>

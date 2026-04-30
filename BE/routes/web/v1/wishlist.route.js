@@ -10,6 +10,18 @@ router.post(
   wishlistController.AddToWishlist,
 );
 
-// remove item form wishlist
+// get wishlist
+router.get(
+  "/all",
+  userMiddleware.authUser,
+  wishlistController.GetWishlist,
+);
+
+// remove from wishlist
+router.post(
+  "/remove",
+  userMiddleware.authUser,
+  wishlistController.RemoveFromWishlist,
+);
 
 module.exports = router;

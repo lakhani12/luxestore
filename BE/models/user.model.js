@@ -26,7 +26,11 @@ let userSchema = mongoose.Schema({
     enum: ["user", "admin", "manager"],
     default: "user",
   },
-});
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+}, { timestamps: true });
 
 // jwt token
 userSchema.methods.generateAuthToken = function () {

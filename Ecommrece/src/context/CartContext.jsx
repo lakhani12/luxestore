@@ -10,6 +10,9 @@ export const CartProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   const fetchCart = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    
     try {
       const response = await cartService.getCart();
       // Backend returns { cart: { items: [...] } }
@@ -26,15 +29,16 @@ export const CartProvider = ({ children }) => {
       setCart(mappedItems);
     } catch (err) {
       console.error("Failed to fetch cart", err);
-      // If 400 (Token missing), we just keep cart empty
-      if (err.response?.status === 400) setCart([]);
+      // If 401 (Token missing/invalid), we just keep cart empty
+      if (err.response?.status === 401 || err.response?.status === 400) setCart([]);
     }
   };
 
   const addToCart = async (productId, quantity = 1) => {
     setLoading(true);
     try {
-      await cartService.addToCart(productId, quantity);
+      // Backend expects { item: { productId, quantity } }
+      await cartService.addToCart({ item: { productId, quantity } });
       await fetchCart();
     } catch (err) {
       console.error("Failed to add to cart", err);
@@ -59,7 +63,7 @@ export const CartProvider = ({ children }) => {
 
   const updateQuantity = async (productId, quantity) => {
     try {
-      await cartService.updateCart(productId, quantity);
+      await cartService.updateQuantity(productId, quantity);
       await fetchCart();
     } catch (err) {
       console.error("Failed to update quantity", err);

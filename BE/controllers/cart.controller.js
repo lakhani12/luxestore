@@ -56,13 +56,35 @@ module.exports.GetCart = async (req, res) => {
 module.exports.RemoveItem = async (req, res) => {
   try {
     const userId = req.user.id;
-    const productId = req.params.id;
+    const productId = req.params.id || req.body.productId;
+
+    if (!productId) {
+      return res.status(400).json({ message: "Product ID is required" });
+    }
 
     await cartService.RemoveSingleProduct({ userId, productId });
 
     return res
       .status(200)
       .json({ message: "Remove Item from Cart Sucessfully " });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+// update quantity
+module.exports.UpdateQuantity = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { productId, quantity } = req.body;
+
+    if (!productId || quantity === undefined) {
+      return res.status(400).json({ message: "Product ID and quantity are required" });
+    }
+
+    const cart = await cartService.updateQuantity({ userId, productId, quantity });
+
+    return res.status(200).json({ message: "Quantity updated successfully", cart });
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }

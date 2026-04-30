@@ -27,7 +27,7 @@ const Cart = () => {
                 </div>
                 <div className="flex-grow text-center sm:text-left">
                   <h3 className="font-serif text-xl text-luxury-navy mb-2">{item.name}</h3>
-                  <p className="text-luxury-gold font-bold tracking-widest text-sm mb-4">${item.price.toLocaleString()}</p>
+                  <p className="text-luxury-gold font-bold tracking-widest text-sm mb-4">₹{item.price.toLocaleString('en-IN')}</p>
                   <div className="flex items-center justify-center sm:justify-start space-x-6">
                     <div className="flex items-center border border-slate-200">
                       <button 

@@ -4,7 +4,7 @@ const cartModel = require("../models/cart.model");
 
 
 // create order
-module.exports.CreateOrder = async ({ userId, items }) => {
+module.exports.CreateOrder = async ({ userId, items, paymentDetails }) => {
   let totalAmount = 0;
 
   let orderItems = [];
@@ -31,6 +31,7 @@ module.exports.CreateOrder = async ({ userId, items }) => {
     userId,
     items: orderItems,
     totalbill: totalAmount,
+    paymentDetails,
   });
 
   // Clear the cart after successful order creation
@@ -47,4 +48,19 @@ module.exports.GetOrder = async(userId)=>{
 // get all orders for Admin
 module.exports.GetAllOrders = async () => {
     return await orderModel.find({}).populate("items.productId").populate("userId", "username email");
+};
+
+// update order status
+module.exports.UpdateOrderStatus = async (orderId, status) => {
+  const updatedOrder = await orderModel.findByIdAndUpdate(
+    orderId,
+    { status },
+    { returnDocument: 'after' }
+  ).populate("userId", "username email");
+
+  if (!updatedOrder) {
+    throw new Error("Order not found");
+  }
+
+  return updatedOrder;
 };

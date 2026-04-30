@@ -29,7 +29,7 @@ let productSchema = mongoose.Schema(
       minLength: 0,
       default: 0,
     },
-    isNewproduct: {
+    isNewProduct: {
       type: Boolean,
       default: true,
     },

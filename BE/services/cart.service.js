@@ -36,3 +36,15 @@ module.exports.RemoveSingleProduct = async ({ userId, productId }) => {
 
   await cart.save();
 };
+
+// update quantity
+module.exports.updateQuantity = async ({ userId, productId, quantity }) => {
+  let cart = await cartModel.findOne({ userId });
+  if (!cart) throw new Error("Cart Not Found !!");
+
+  const item = cart.items.find((i) => i.productId.equals(productId));
+  if (!item) throw new Error("Item not Found in Cart");
+
+  item.quantity = quantity;
+  return await cart.save();
+};

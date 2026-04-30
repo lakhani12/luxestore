@@ -14,16 +14,16 @@ module.exports.createProduct = async ({
   category,
 }) => {
   if (
-    !name ||
-    !description ||
-    !stock ||
-    !price ||
-    !sku ||
-    !images ||
-    !brand ||
-    !category
+    name === undefined ||
+    description === undefined ||
+    stock === undefined ||
+    price === undefined ||
+    sku === undefined ||
+    images === undefined ||
+    brand === undefined ||
+    category === undefined
   ) {
-    throw new Error("All Feild Are Required !!");
+    throw new Error("All Fields Are Required !!");
   }
 
   let product = await productModel.create({
@@ -82,7 +82,7 @@ module.exports.updateProduct = async ({
       brand,
       category,
     },
-    { new: true },
+    { returnDocument: 'after' },
   );
 
   if (!updatedProduct) {

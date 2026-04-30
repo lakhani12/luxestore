@@ -21,7 +21,7 @@ module.exports.updateUser = async ({ userId, username, email }) => {
   const updatedUser = await userModel.findOneAndUpdate(
     { _id: userId },
     { username, email },
-    { new: true },
+    { returnDocument: 'after' },
   );
 
   if (!updatedUser) {
@@ -32,15 +32,7 @@ module.exports.updateUser = async ({ userId, username, email }) => {
 };
 
 // forget password
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.NODE_EMAIL,
-    pass: process.env.NODE_PASSWORD,
-  },
-});
+const { transporter } = require("./email.service");
 
 module.exports.forgetPassword = async (email) => {
   const user = await userModel.findOne({ email });
@@ -52,15 +44,16 @@ module.exports.forgetPassword = async (email) => {
   const token = crypto.randomBytes(32).toString("hex");
   console.log(token);
   user.resetToken = token;
-  user.resetTokenExpiry = Date.now() + 15 * 60 * 1000;
-  // created reset Token Expiry time = genrate link data and time + extra 15 min
-  // token will be validate only 15 minutes, after 15 minutes token will be expiry and you can't reset your password
+  user.resetTokenExpiry = Date.now() + 1 * 60 * 1000;
+  // created reset Token Expiry time = genrate link data and time + extra 30 min
+  // token will be validate only 30 minutes, after 30 minutes token will be expiry and you can't reset your password
   await user.save();
 
-  const resetLink = `http://localhost:3002/reset-password/${token}`;
+  const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${token}`;
   // resetLink = frontend page link that show newPassword filed with change password btn
 
   await transporter.sendMail({
+    from: process.env.NODE_EMAIL, 
     to: email,
     subject: "Reset Your Password",
     html: `<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">

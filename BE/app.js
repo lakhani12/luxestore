@@ -13,6 +13,8 @@ const cartRouter = require("./routes/web/v1/cart.route");
 const orderRouter = require("./routes/web/v1/order.route");
 const wishlistRouter = require("./routes/web/v1/wishlist.route");
 const categoryRouter = require("./routes/web/v1/category.route");
+const contactRouter = require("./routes/web/v1/contact.route");
+const paymentRouter = require("./routes/web/v1/payment.route");
 
 const app = express();
 
@@ -25,22 +27,23 @@ db();
 // localhost 3002 --> req --> accept --> give response
 // localhost 3004 --> req --> cors error --> don't give response
 // in origin you mention frontend urls (deveopment, producation both)
-app.use(cors({ origin: ["http://localhost:5173", "http://localhost:3002"], credentials: true }));
+app.use(cors({ 
+  origin: [process.env.FRONTEND_URL || "http://localhost:5173", "http://localhost:3002"], 
+  credentials: true 
+}));
 
-PORT = process.env.PORT;
+const PORT = process.env.PORT || 3005;
 
-// temp route --> in Backend we Don't create a Home Route. after Teasting / Developement Remove Home Route
-app.get("/", (req, res) => {
-  res.status(401).json({ message: "Access Denined !!" });
-});
 app.use("/user", userRouter);
 app.use("/admin", adminRouter);
 app.use("/product", productRouter);
 app.use("/bot", chatRouter);
 app.use("/cart", cartRouter);
 app.use("/order", orderRouter);
-app.use("/wishlist", wishlistRouter)
+app.use("/wishlist", wishlistRouter);
 app.use("/category", categoryRouter);
+app.use("/contact", contactRouter);
+app.use("/payment", paymentRouter);
 
 app.listen(PORT, () => {
   console.log(`✅ server is Running on PORT ${PORT}`);

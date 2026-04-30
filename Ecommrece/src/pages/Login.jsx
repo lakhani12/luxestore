@@ -82,6 +82,11 @@ const Login = () => {
                 />
                 <Lock className="absolute left-3 top-4.5 text-luxury-gold/40 w-4 h-4" />
               </div>
+              <div className="flex justify-end mt-2">
+                <Link to="/forgot-password" virtual-link="forgot-password" id="forgot-password"  className="text-[10px] font-bold tracking-widest uppercase text-luxury-gold hover:text-luxury-navy transition-colors">
+                  Forgot Password?
+                </Link>
+              </div>
             </div>
           </div>
 

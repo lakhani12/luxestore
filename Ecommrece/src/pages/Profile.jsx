@@ -92,8 +92,46 @@ const Profile = () => {
                                 <span className="text-xs font-bold uppercase tracking-widest">{new Date(order.createdAt).toLocaleDateString()}</span>
                               </div>
                             </div>
-                            <span className="bg-green-50 text-green-600 text-[8px] font-bold tracking-[0.3em] uppercase px-3 py-1 border border-green-100">Confirmed</span>
+                            <div className="flex flex-col items-end">
+                              <span className={`text-[8px] font-bold tracking-[0.3em] uppercase px-3 py-1 border ${
+                                order.status === 'delivered' ? 'bg-green-50 text-green-600 border-green-100' :
+                                order.status === 'cancel' ? 'bg-red-50 text-red-600 border-red-100' :
+                                'bg-luxury-gold/10 text-luxury-gold border-luxury-gold/20'
+                              }`}>
+                                {order.status.replace('_', ' ')}
+                              </span>
+                              {order.trackingId && (
+                                <p className="text-[8px] text-slate-400 mt-2 font-mono tracking-tighter uppercase">ID: {order.trackingId}</p>
+                              )}
+                            </div>
                           </div>
+
+                          {/* Tracking Progress Bar */}
+                          {order.status !== 'cancel' && (
+                            <div className="py-6">
+                              <div className="flex justify-between mb-4">
+                                {['pending', 'processing', 'shipped', 'delivered'].map((s, i) => {
+                                  const steps = ['pending', 'processing', 'shipped', 'out_for_delivery', 'delivered'];
+                                  const currentIdx = steps.indexOf(order.status);
+                                  const stepIdx = steps.indexOf(s);
+                                  const isCompleted = currentIdx >= stepIdx;
+                                  const isActive = currentIdx === stepIdx;
+                                  
+                                  return (
+                                    <div key={s} className="flex flex-col items-center flex-1 relative">
+                                      <div className={`w-3 h-3 rounded-full border-2 z-10 transition-all duration-500 ${isCompleted ? 'bg-luxury-gold border-luxury-gold' : 'bg-white border-slate-200'}`}>
+                                        {isActive && <div className="w-full h-full rounded-full animate-ping bg-luxury-gold opacity-75"></div>}
+                                      </div>
+                                      <span className={`text-[7px] tracking-widest uppercase mt-3 font-bold ${isCompleted ? 'text-luxury-navy' : 'text-slate-300'}`}>{s.replace('_', ' ')}</span>
+                                      {i < 3 && (
+                                        <div className={`absolute top-1.5 left-1/2 w-full h-[1px] -z-0 ${currentIdx > stepIdx ? 'bg-luxury-gold' : 'bg-slate-100'}`}></div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
                           
                           <div className="space-y-4">
                             {order.items.map((item, idx) => (
@@ -105,7 +143,7 @@ const Profile = () => {
                                   <p className="text-xs font-serif text-luxury-navy italic">{item.productId?.name || 'Luxury Item'}</p>
                                   <p className="text-[8px] tracking-widest text-slate-400 uppercase">Qty: {item.quantity}</p>
                                 </div>
-                                <span className="text-xs font-bold text-luxury-gold">${item.total?.toLocaleString()}</span>
+                                <span className="text-xs font-bold text-luxury-gold">₹{item.total?.toLocaleString('en-IN')}</span>
                               </div>
                             ))}
                           </div>

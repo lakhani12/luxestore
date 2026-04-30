@@ -14,11 +14,11 @@ module.exports.deleteUser = async (id) => {
   return user;
 };
 
-// update role
-module.exports.updateUserRole = async ({ userId, role }) => {
-  return await userModel.findOneAndUpdate(
-    { _id: userId },
-    { role },
-    { new: true },
+// update user details (role, status, etc)
+module.exports.updateUser = async (userId, updates) => {
+  return await userModel.findByIdAndUpdate(
+    userId,
+    { $set: updates },
+    { new: true, runValidators: true }
   );
 };

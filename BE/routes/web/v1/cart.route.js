@@ -11,6 +11,10 @@ router.get("/all", userMiddleware.authUser, cartController.GetCart)
 
 // remove single item from cart
 router.delete("/product/:id", userMiddleware.authUser, cartController.RemoveItem)
+router.post("/remove", userMiddleware.authUser, cartController.RemoveItem)
+
+// update quantity
+router.post("/update", userMiddleware.authUser, cartController.UpdateQuantity)
 
 
 // remove all item form cart --> empty cart

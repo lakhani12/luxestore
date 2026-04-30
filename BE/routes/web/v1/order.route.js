@@ -13,6 +13,9 @@ router.get("/all", userMiddleware.authUser, orderController.GetOrder)
 // Admin: Get ALL orders for management
 router.get("/admin/all", userMiddleware.authUser, adminMiddleware.authAdmin, orderController.GetAllOrdersForAdmin)
 
+// Admin: Update order status
+router.patch("/admin/status/:id", userMiddleware.authUser, adminMiddleware.authAdmin, orderController.UpdateOrderStatus)
+
 
 
 // remove Items for Order

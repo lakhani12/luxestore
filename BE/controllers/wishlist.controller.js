@@ -4,16 +4,35 @@ const wishlistService = require("../services/wishlist.service");
 module.exports.AddToWishlist = async(req, res) =>{
     try {
         const userId = req.user.id;
-        const {item} = req.body;
+        const {productId} = req.body;
 
-        const wishlist = await wishlistService.AddToWishlist({userId, item});
+        const wishlist = await wishlistService.AddToWishlist({userId, productId});
 
-        if(!wishlist){
-            return res.status(404).json({message: "Product Not Found !!"})
-        }
-
-        return res.status(200).json({message: "Add Item into Wishlist", wishlist})
+        return res.status(200).json({message: "Item added to Wishlist", wishlist})
         
+    } catch (error) {
+        return res.status(400).json({message: error.message})
+    }
+}
+
+// get wishlist
+module.exports.GetWishlist = async(req, res) =>{
+    try {
+        const userId = req.user.id;
+        const items = await wishlistService.GetWishlist(userId);
+        return res.status(200).json({items})
+    } catch (error) {
+        return res.status(400).json({message: error.message})
+    }
+}
+
+// remove from wishlist
+module.exports.RemoveFromWishlist = async(req, res) =>{
+    try {
+        const userId = req.user.id;
+        const {productId} = req.body;
+        const wishlist = await wishlistService.RemoveFromWishlist({userId, productId});
+        return res.status(200).json({message: "Item removed from Wishlist", wishlist})
     } catch (error) {
         return res.status(400).json({message: error.message})
     }

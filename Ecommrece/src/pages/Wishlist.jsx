@@ -1,46 +1,97 @@
-import React from 'react';
-import { Heart, ShoppingBag, Trash2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Heart, ShoppingBag, Trash2, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { wishlistService, cartService } from '../services/api';
 
 const Wishlist = () => {
-  const wishlistItems = [
-    { id: 3, name: "Smart Fitness Tracker", price: 99, category: "Electronics", image: "https://images.unsplash.com/photo-1575311373937-040b8e3fd5b6?auto=format&fit=crop&q=80&w=800" },
-    { id: 4, name: "Canvas Travel Backpack", price: 85, category: "Bags", image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800" },
-  ];
+  const [wishlistItems, setWishlistItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchWishlist = async () => {
+    try {
+      const response = await wishlistService.getWishlist();
+      setWishlistItems(response.data.items || []);
+    } catch (err) {
+      console.error("Failed to fetch wishlist", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchWishlist();
+  }, []);
+
+  const handleRemove = async (id) => {
+    try {
+      await wishlistService.removeFromWishlist(id);
+      setWishlistItems(prev => prev.filter(item => item._id !== id));
+    } catch (err) {
+      console.error("Failed to remove item", err);
+    }
+  };
+
+  const handleAddToCart = async (product) => {
+    try {
+      await cartService.addToCart({ 
+        item: { productId: product._id, quantity: 1 } 
+      });
+      // Optionally remove from wishlist after adding to cart
+      // await handleRemove(product._id);
+      alert(`${product.name} added to cart!`);
+    } catch (err) {
+      console.error("Failed to add to cart", err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center">
+        <Loader2 className="w-12 h-12 animate-spin text-luxury-gold mb-4" />
+        <p className="text-xs tracking-[0.3em] font-bold text-slate-400 uppercase">Retrieving your treasures</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="flex justify-between items-center mb-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">My Wishlist</h1>
-          <p className="text-slate-600">You have {wishlistItems.length} items in your wishlist</p>
+          <h1 className="text-5xl font-serif text-luxury-navy mb-3 italic">My Wishlist</h1>
+          <p className="text-xs tracking-[0.2em] font-bold text-luxury-gold uppercase">Curated Selection • {wishlistItems.length} Masterpieces</p>
         </div>
-        <Link to="/products" className="bg-slate-900 text-white px-6 py-3 rounded-xl font-semibold hover:bg-slate-800 transition-colors">
-          Browse More
+        <Link to="/products" className="btn-premium">
+          Continue Exploring
         </Link>
       </div>
 
       {wishlistItems.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
           {wishlistItems.map((item) => (
-            <div key={item.id} className="bg-white rounded-2xl overflow-hidden border border-slate-100 hover:shadow-xl transition-all group">
-              <div className="relative aspect-square overflow-hidden">
+            <div key={item._id} className="group relative bg-white rounded-3xl overflow-hidden border border-slate-100 hover:shadow-2xl transition-all duration-500">
+              <div className="relative aspect-[4/5] overflow-hidden">
                 <img
-                  src={item.image}
+                  src={item.images?.[0] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800'}
                   alt={item.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
-                <button className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full text-red-500 shadow-sm hover:bg-red-50 transition-colors">
+                <button 
+                  onClick={() => handleRemove(item._id)}
+                  className="absolute top-6 right-6 p-3 bg-white/90 backdrop-blur-md rounded-full text-slate-400 shadow-xl hover:text-red-500 hover:bg-white transition-all transform hover:rotate-90"
+                >
                   <Trash2 className="w-5 h-5" />
                 </button>
               </div>
-              <div className="p-6">
-                <div className="text-sm text-indigo-600 font-semibold mb-1">{item.category}</div>
-                <h3 className="text-lg font-bold text-slate-900 mb-4 truncate">{item.name}</h3>
+              <div className="p-8">
+                <p className="text-[10px] text-luxury-gold font-bold uppercase tracking-[0.2em] mb-2">{item.category}</p>
+                <h3 className="text-xl font-serif text-luxury-navy mb-4 italic truncate">{item.name}</h3>
                 <div className="flex justify-between items-center">
-                  <span className="text-2xl font-bold text-slate-900">${item.price}</span>
-                  <button className="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
-                    <ShoppingBag className="w-4 h-4 mr-2" /> Add
+                  <span className="text-2xl font-bold text-luxury-navy">${item.price?.toLocaleString()}</span>
+                  <button 
+                    onClick={() => handleAddToCart(item)}
+                    className="p-3 bg-luxury-navy text-white rounded-2xl hover:bg-luxury-gold transition-colors shadow-lg"
+                  >
+                    <ShoppingBag className="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -48,12 +99,14 @@ const Wishlist = () => {
           ))}
         </div>
       ) : (
-        <div className="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-          <Heart className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Your wishlist is empty</h2>
-          <p className="text-slate-600 mb-8">Save items you love to find them easily later.</p>
-          <Link to="/products" className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-colors inline-block">
-            Start Shopping
+        <div className="text-center py-32 bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-200">
+          <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl">
+            <Heart className="w-10 h-10 text-slate-200" />
+          </div>
+          <h2 className="text-3xl font-serif text-luxury-navy mb-4 italic">Your collection is empty</h2>
+          <p className="text-slate-400 text-sm max-w-xs mx-auto mb-10 leading-relaxed">Save the pieces that inspire you and build your personal gallery of luxury.</p>
+          <Link to="/products" className="btn-premium px-12">
+            Discover Masterpieces
           </Link>
         </div>
       )}

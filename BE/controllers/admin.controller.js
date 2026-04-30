@@ -28,26 +28,33 @@ module.exports.deleteUser = async (req, res) => {
   }
 };
 
-// update user role
-module.exports.updateUserRole = async (req, res) => {
+// update user
+module.exports.updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const { role } = req.body;
+    const updates = req.body;
+    
+    // Safety: don't allow updating sensitive/system fields directly
+    delete updates._id;
+    delete updates.password;
+    delete updates.createdAt;
+    delete updates.updatedAt;
+
+    console.log("Admin Updating User:", userId, updates);
 
     if (req.user.role !== "admin") {
-      return res.status(401).json({ message: "Access Denined !!" });
+      return res.status(401).json({ message: "Access Denied: Admin privileges required." });
     }
 
-    const user = await adminService.updateUserRole({ userId, role });
+    const user = await adminService.updateUser(userId, updates);
 
     if (!user) {
-      throw new Error("User Not Found !!");
+      return res.status(404).json({ message: "Target user not found in archives." });
     }
 
-    return res
-      .status(200)
-      .json({ message: "User Role Updated Successfully", user });
+    return res.status(200).json({ message: "Member record updated successfully.", user });
   } catch (error) {
-    return res.status(400).json({ message: error.message });
+    console.error("Update User Error:", error);
+    return res.status(400).json({ message: `Registry Update Failed: ${error.message}` });
   }
 };
